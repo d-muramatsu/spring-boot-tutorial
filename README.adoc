@@ -40,3 +40,42 @@ $ mvn spring-boot:run
 == ブラウザで動作確認する
 
 http://localhost:8080/hello にアクセスする。
+
+== MySQL データベースを使えるようにする
+
+=== MySQL と phpMyAdmin の Docker を構成する
+
+参考サイト https://qiita.com/TAMIYAN/items/ed9ec892d91e5af962c6
+
+詳細な構成内容は `docker-compose.yml` を参照されたい。
+
+=== Docker をビルドして起動
+
+----
+$ docker-compose build
+$ docker-compose up -d
+----
+
+=== MySQL と phpMyAdmin の疎通確認
+
+http://localhost:18080/ にアクセスする。
+
+=== MySQL と MyBatis3 の依存を追加する
+
+TODO
+
+=== DB の接続設定をする
+
+TODO
+
+=== Docker を起動する
+
+TODO
+
+=== Spring Boot アプリを起動する
+
+TODO
+
+=== 動作確認する
+
+TODO

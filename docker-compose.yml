@@ -1,0 +1,23 @@
+version: "3"
+services:
+  mysql:
+    build: ./docker/mysql/
+    volumes:
+      - ./docker/mysql/db:/docker-entrypoint-initdb.d
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=password
+    links:
+      - mysql
+    ports:
+      - 18080:80
+    volumes:
+      - /sessions
