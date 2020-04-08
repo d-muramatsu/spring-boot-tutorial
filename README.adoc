@@ -1,0 +1,42 @@
+= spring-boot-tutorial
+:toc:
+:sectnums:
+:source-highlighter: coderay
+
+== Spring Boot のプロジェクトを作成する
+
+コマンドラインで Spring Initializr を使って Spring Boot のプロジェクトを作成する。
+
+参考サイト https://github.com/spring-io/initializr#generating-a-project
+
+----
+$ curl https://start.spring.io/starter.zip -d dependencies=web,lombok,thymeleaf \
+    -d applicationName=SpringBootTutorial \
+    -d artifactId=spring-boot-tutorial \
+    -d name=springboottutorial \
+    -d packageName=com.example.springboottutorial \
+    -d javaVersion=11 -o spring-boot-tutorial.zip
+----
+
+落としたら `unzip` する。
+
+== Controller を作る
+
+このままだとリクエストを受け付けるエンドポイントがないので、 Controller を作る。
+
+[source, java]
+----
+include::src/main/java/com/example/springboottutorial/controller/MyController.java[]
+----
+
+== Spring Boot アプリをビルド＆実行してみる
+
+----
+$ mvn spring-boot:run
+----
+
+依存ライブラリのダウンロードが行われ、アプリが起動する。
+
+== ブラウザで動作確認する
+
+http://localhost:8080/hello にアクセスする。
