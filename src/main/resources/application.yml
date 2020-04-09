@@ -1,4 +1,14 @@
 spring:
+  security:
+    oauth2:
+      client:
+        registration:
+        #   github:
+        #     clientId: 18bb0a9ae947b84821e4
+        #     clientSecret: f1df35c7d092f23f9fe990224c9f69fbf2729388
+          google:
+            client-id: 63775261025-bkv0guvm8pdt69jgdm8ih28m33h77p71.apps.googleusercontent.com
+            client-secret: A-HkbBYE7qxasBQIiGt9JojS
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/world

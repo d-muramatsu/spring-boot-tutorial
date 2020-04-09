@@ -79,3 +79,13 @@ TODO
 === 動作確認する
 
 TODO
+
+== Google ID でログイン出来るようにする
+
+参考サイト https://spring.io/guides/tutorials/spring-boot-oauth2/
+
+TODO やったことまとめる。
+
+アプリケーション起動後、 http://localhost:8080/ にアクセスすると Google アカウントでログインできる。
+
+TODO アプリ側でユーザー情報管理するためのあれこれを検証する。
