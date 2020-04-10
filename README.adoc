@@ -86,6 +86,20 @@ TODO
 
 TODO やったことまとめる。
 
+=== Google APIs でクライアントIDとクライアントシークレットを発行する
+
+TODO
+
+=== アプリケーションを起動する
+
+クライアントIDとクライアントシークレットは起動時のコマンドライン引数で渡す。
+
+----
+$ mvn spring-boot:run -Dspring-boot.run.arguments="--GOOGLE_CLIENT_ID=[Google APIsで発行したクライアントID] --GOOGLE_CLIENT_SECRET=[Google APIsで発行したクライアントシークレット]"
+----
+
+=== 動作確認
+
 アプリケーション起動後、 http://localhost:8080/ にアクセスすると Google アカウントでログインできる。
 
 TODO アプリ側でユーザー情報管理するためのあれこれを検証する。
