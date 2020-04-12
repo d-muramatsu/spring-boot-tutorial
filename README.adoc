@@ -82,15 +82,118 @@ TODO
 
 == Google ID でログイン出来るようにする
 
-参考サイト https://spring.io/guides/tutorials/spring-boot-oauth2/
+参考サイト★ https://spring.io/guides/tutorials/spring-boot-oauth2/ +
+参考サイト https://qiita.com/nobi_tum/items/6bf594501b4a722b28ad +
+参考サイト https://www.slideshare.net/rakutentech/spring-social-206911643 +
+参考サイト https://qiita.com/zakioka_pirori/items/f07a768353ac789528dd +
+参考サイト★ https://qiita.com/kazuki43zoo/items/53804e18337933a77ad0 +
 
-TODO やったことまとめる。
+=== Google のアカウント管理側でやること
 
-=== Google APIs でクライアントIDとクライアントシークレットを発行する
+==== Google APIs でクライアントIDとクライアントシークレットを発行する
 
 TODO
 
-=== アプリケーションを起動する
+=== Spring アプリケーション側の実装内容
+
+==== WebSecurityConfigurerAdapter をカスタマイズする
+
+`WebSecurityConfigurerAdapter` を継承したクラスを作り、 `configure(http)` メソッドをオーバーライドする。
+
+.SecurityConfiguration.java
+[source, java]
+----
+    @Autowired
+    private UserService userService;
+
+    @Override
+    protected void configure(final HttpSecurity http) throws Exception {
+        SimpleUrlAuthenticationFailureHandler handler = new SimpleUrlAuthenticationFailureHandler("/");
+
+        // @formatter:off
+        http.authorizeRequests()
+            .antMatchers("/", "/error", "/webjars/**").permitAll()
+            .antMatchers("/admin/**").hasRole("ADMIN")
+            .antMatchers("/registered/**").hasRole("REGISTERED_USER")   // ここがポイント：その1 登録済みユーザーのみアクセスできるパスを指定
+            .anyRequest().authenticated();
+
+        http.exceptionHandling()
+            .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+
+        http.logout()
+            .logoutSuccessUrl("/").permitAll();
+
+        http.csrf()
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+
+        http.oauth2Login()  // ここがポイント：その2 ソーシャルログインを有効化する
+            .failureHandler((request, response, exception) -> {
+                request.getSession().setAttribute("error.message", exception.getMessage());
+                handler.onAuthenticationFailure(request, response, exception);
+            })
+            .userInfoEndpoint()
+            .userAuthoritiesMapper(this.oauth2UserAuthoritiesMapper()); // ここがポイント：その3 userAuthoritiesMapper をカスタマイズする
+		// @formatter:on
+    }
+
+    private GrantedAuthoritiesMapper oauth2UserAuthoritiesMapper() {
+        // インタフェース的には複数件受け取ることができるが、実際には権限情報(ROLE_USER)の１件のみが渡される
+        return authorities -> {
+            List<GrantedAuthority> mappedAuthorities = new ArrayList<>();
+            for (GrantedAuthority authority : authorities) {
+                // オリジナルの権限情報は引き継ぐ
+                mappedAuthorities.add(authority);
+                if (OAuth2UserAuthority.class.isInstance(authority)) {
+                    // OAuth 2.0 Login機能でログインしたユーザに与える権限情報(ROLE_OAUTH_USER)を追加
+                    mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_OAUTH_USER"));
+                    OAuth2UserAuthority oauth2UserAuthority = OAuth2UserAuthority.class.cast(authority);
+                    // ここがポイント：その4 登録済みユーザーか(DBにレコードが存在するか)検証
+                    String email = (String) oauth2UserAuthority.getAttributes().get("email");
+                    User registeredUser = userService.getUser(email);
+                    if (registeredUser != null) {
+                        // ここがポイント：その5 登録済みユーザーに与える権限を追加
+                        mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_REGISTERED_USER"));
+                    }
+                }
+            }
+            return mappedAuthorities;
+        };
+    }
+----
+
+==== DBにユーザー情報を問い合わせる Service と Repository を作成する
+
+.UserServiceImpl.java
+[source, java]
+----
+@Service
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public User getUser(String id) {
+        return userRepository.findById(id);
+    }
+
+}
+----
+
+.UserRepository.java
+[source, java]
+----
+@Mapper
+public interface UserRepository {
+
+    @Select("SELECT id, name FROM User WHERE id = #{id}")
+    public User findById(String id);
+}
+----
+
+NOTE: アプリを利用するユーザーは予め User テーブルに登録しておく。
+
+=== サンプルの動作確認方法
 
 クライアントIDとクライアントシークレットは起動時のコマンドライン引数で渡す。
 
@@ -98,8 +201,4 @@ TODO
 $ mvn spring-boot:run -Dspring-boot.run.arguments="--GOOGLE_CLIENT_ID=[Google APIsで発行したクライアントID] --GOOGLE_CLIENT_SECRET=[Google APIsで発行したクライアントシークレット]"
 ----
 
-=== 動作確認
-
 アプリケーション起動後、 http://localhost:8080/ にアクセスすると Google アカウントでログインできる。
-
-TODO アプリ側でユーザー情報管理するためのあれこれを検証する。
