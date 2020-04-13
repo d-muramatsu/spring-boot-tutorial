@@ -6,6 +6,7 @@ import java.util.List;
 import com.example.springboottutorial.domain.model.User;
 import com.example.springboottutorial.domain.service.UserService;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -69,7 +70,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     OAuth2UserAuthority oauth2UserAuthority = OAuth2UserAuthority.class.cast(authority);
                     // 登録済みユーザーか(DBにレコードが存在するか)検証
                     String email = (String) oauth2UserAuthority.getAttributes().get("email");
-                    User registeredUser = userService.getUser(email);
+                    // メールアドレスはハッシュ化して問合せ
+                    String hashedEmail = DigestUtils.sha1Hex(email);
+                    User registeredUser = userService.getUser(hashedEmail);
                     if (registeredUser != null) {
                         // 登録済みユーザーに与える権限を追加
                         // System.out.println("登録済みユーザーです");

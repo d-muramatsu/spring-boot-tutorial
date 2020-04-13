@@ -14,6 +14,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(String id) {
+        System.out.print("ハッシュ化されているか？" + id);
+
         User user = new User();
         user.setId("hoge@hoge.jp");
         user.setName("ほげ太郎");
