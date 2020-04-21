@@ -14,3 +14,10 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/world
     username: root
     password: password
+logging:
+  level:
+    org.springframework.web.client.RestTemplate: DEBUG
+hello:
+  be:
+    api: 
+      url: http://localhost:80/api/v1/all_categorys

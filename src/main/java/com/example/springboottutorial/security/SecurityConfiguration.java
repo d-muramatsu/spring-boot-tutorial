@@ -52,7 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 handler.onAuthenticationFailure(request, response, exception);
             })
             .userInfoEndpoint()
-            .userAuthoritiesMapper(this.oauth2UserAuthoritiesMapper());
+            .userAuthoritiesMapper(this.oauth2UserAuthoritiesMapper()); // 権限をつけるマッパー
 		// @formatter:on
     }
 
